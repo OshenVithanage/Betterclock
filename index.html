@@ -3,221 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BetterClock</title>
+    <title>BetterClock – Timers</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0b0b0c;
+            --panel: #141416;
+            --muted: #8b8d92;
+            --text: #e9eaed;
+            --primary: #1a73e8;
+            --primary-weak: #1a73e81a;
+            --ring-bg: #2a2c30;
         }
-
+        html, body {
+            height: 100%;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            overflow: hidden;
-        }
-
-        .container {
-            text-align: center;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-
-        .clock {
-            font-size: 4rem;
-            font-weight: 300;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .date {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-
-        .app-title {
-            font-size: 3rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            opacity: 0.8;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .features {
-            margin-top: 40px;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            place-items: center;
         }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
+        .app {
+            width: min(920px, 92vw);
+            padding: 32px;
         }
-
-        .feature-title {
-            font-size: 1.1rem;
+        .tabs {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #1b1c20;
+            color: var(--muted);
             font-weight: 600;
-            margin-bottom: 10px;
+            user-select: none;
         }
-
-        .feature-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
+        .tab.active { background: #2a2b30; color: var(--text); }
+        .timer-card {
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 28px;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 10px 40px #0006;
         }
-
-        @media (max-width: 768px) {
-            .clock {
-                font-size: 2.5rem;
-            }
-            
-            .app-title {
-                font-size: 2rem;
-            }
-            
-            .container {
-                margin: 20px;
-                padding: 30px;
-            }
+        .ring {
+            width: 420px; height: 420px; position: relative;
         }
+        canvas { width: 100%; height: 100%; display: block; }
+        .time {
+            position: absolute; inset: 0; display: grid; place-items: center;
+            font-size: 92px; font-weight: 600; letter-spacing: 1px;
+        }
+        .preset-row {
+            margin-top: 18px; display: flex; gap: 8px; justify-content: center;
+        }
+        .chip { background: #222329; color: var(--text); border: 1px solid #2f3137; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
+        .chip[aria-pressed="true"] { outline: 2px solid var(--primary); background: #1b2130; }
+        .controls { margin-top: 28px; display: flex; gap: 12px; justify-content: center; }
+        .btn { border: 0; padding: 12px 22px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .btn.primary { background: var(--primary); color: white; }
+        .btn.ghost { background: #23252a; color: var(--text); }
+        .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; text-align: center; }
+        .row { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 10px; color: var(--muted) }
+        select, input[type="number"] { background: #1b1d22; color: var(--text); border: 1px solid #2b2e35; padding: 8px 10px; border-radius: 10px; }
+        input[type="number"] { width: 90px; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="app-title">BetterClock</h1>
-        <div class="clock" id="clock">00:00:00</div>
-        <div class="date" id="date">Loading...</div>
-        <p class="subtitle">A beautiful and modern clock application built with Electron</p>
-        
-        <div class="buttons">
-            <button class="btn" onclick="toggleFormat()">Toggle 12/24H</button>
-            <button class="btn" onclick="showInfo()">App Info</button>
-            <button class="btn" onclick="closeApp()">Close App</button>
+    <div class="app">
+        <div class="tabs">
+            <div class="tab">World Clock</div>
+            <div class="tab">Alarms</div>
+            <div class="tab">Stopwatch</div>
+            <div class="tab active">Timers</div>
         </div>
-
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-title">Real-time Clock</div>
-                <div class="feature-desc">Always up-to-date time display with smooth animations</div>
+        <div class="timer-card">
+            <div class="ring">
+                <canvas id="ringCanvas" width="420" height="420"></canvas>
+                <div class="time" id="timeText">00:00</div>
             </div>
-            <div class="feature-card">
-                <div class="feature-title">Modern Design</div>
-                <div class="feature-desc">Beautiful glassmorphism UI with responsive layout</div>
+            <div class="row">
+                <span>Timer</span>
+                <select id="styleSelect">
+                    <option value="radial">Radial (Default)</option>
+                </select>
+                <input id="minutesInput" type="number" min="0" max="999" value="15" />
+                <span class="footer-note">minutes</span>
             </div>
-            <div class="feature-card">
-                <div class="feature-title">Cross-platform</div>
-                <div class="feature-desc">Runs on Windows, macOS, and Linux</div>
+            <div class="preset-row">
+                <button class="chip" data-min="5">5</button>
+                <button class="chip" data-min="10">10</button>
+                <button class="chip" data-min="15">15</button>
+                <button class="chip" data-min="25">25</button>
+                <button class="chip" data-min="45">45</button>
             </div>
+            <div class="controls">
+                <button id="cancelBtn" class="btn ghost">Cancel</button>
+                <button id="mainBtn" class="btn primary">Start</button>
+            </div>
+            <div class="footer-note" id="statusNote">Ready</div>
         </div>
     </div>
-
     <script>
-        let is24Hour = true;
+        const canvas = document.getElementById('ringCanvas');
+        const ctx = canvas.getContext('2d');
+        const timeText = document.getElementById('timeText');
+        const mainBtn = document.getElementById('mainBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const minutesInput = document.getElementById('minutesInput');
+        const statusNote = document.getElementById('statusNote');
 
-        function updateClock() {
-            const now = new Date();
-            const timeOptions = {
-                hour12: !is24Hour,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            
-            const dateOptions = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
+        const R = 200; // radius
+        const LINE = 10;
+        let totalMs = 0;
+        let remainingMs = 0;
+        let state = 'idle'; // idle | running | paused | finished
+        let rafId = null;
+        let lastTs = 0;
 
-            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', timeOptions);
-            document.getElementById('date').textContent = now.toLocaleDateString('en-US', dateOptions);
+        function drawRing(progress) {
+            const cx = canvas.width / 2; const cy = canvas.height / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // track
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, Math.PI * 2);
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--ring-bg');
+            ctx.lineWidth = LINE;
+            ctx.stroke();
+            // progress
+            ctx.beginPath();
+            const start = -Math.PI/2; // top
+            ctx.arc(cx, cy, R, start, start + Math.PI * 2 * progress);
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+            ctx.lineCap = 'round';
+            ctx.lineWidth = LINE + 2;
+            ctx.stroke();
         }
 
-        function toggleFormat() {
-            is24Hour = !is24Hour;
-            updateClock();
+        function mmss(ms) {
+            const s = Math.max(0, Math.floor(ms/1000));
+            const m = Math.floor(s/60);
+            const r = s % 60;
+            return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
         }
 
-        function showInfo() {
-            if (window.electronAPI && window.electronAPI.getVersion) {
-                window.electronAPI.getVersion().then(version => {
-                    alert(`BetterClock v${version}\nBuilt with Electron\nCreated for better time management`);
-                }).catch(() => {
-                    alert('BetterClock v1.0.0\nBuilt with Electron\nCreated for better time management');
+        function updateUI() {
+            timeText.textContent = mmss(remainingMs);
+            const p = totalMs === 0 ? 0 : (totalMs - remainingMs) / totalMs;
+            drawRing(p);
+            if (state === 'idle' || state === 'finished') { mainBtn.textContent = 'Start'; }
+            else if (state === 'running') { mainBtn.textContent = 'Pause'; }
+            else if (state === 'paused') { mainBtn.textContent = 'Resume'; }
+            statusNote.textContent = state === 'running' ? 'Timer running' : state === 'paused' ? 'Paused' : 'Ready';
+            if (window.electronAPI?.timerTick) {
+                window.electronAPI.timerTick({
+                    state,
+                    remaining: Math.max(0, remainingMs),
+                    total: totalMs
                 });
-            } else {
-                alert('BetterClock v1.0.0\nBuilt with Electron\nCreated for better time management');
             }
         }
 
-        function closeApp() {
-            if (window.electronAPI && window.electronAPI.closeApp) {
-                window.electronAPI.closeApp();
-            } else {
-                window.close();
+        function loop(ts) {
+            if (state !== 'running') return;
+            if (!lastTs) lastTs = ts;
+            const dt = ts - lastTs;
+            lastTs = ts;
+            remainingMs -= dt;
+            if (remainingMs <= 0) {
+                remainingMs = 0;
+                state = 'finished';
+                updateUI();
+                window.electronAPI?.timerDone?.();
+                return;
+            }
+            updateUI();
+            rafId = requestAnimationFrame(loop);
+        }
+
+        function startTimer() {
+            const mins = Math.max(0, Number(minutesInput.value || 0));
+            totalMs = mins * 60 * 1000;
+            remainingMs = totalMs;
+            state = 'running';
+            lastTs = 0;
+            cancelAnimationFrame(rafId);
+            updateUI();
+            rafId = requestAnimationFrame(loop);
+        }
+
+        function pauseOrResume() {
+            if (state === 'running') {
+                state = 'paused';
+                cancelAnimationFrame(rafId);
+                updateUI();
+            } else if (state === 'paused') {
+                state = 'running';
+                lastTs = 0;
+                updateUI();
+                rafId = requestAnimationFrame(loop);
+            } else if (state === 'idle' || state === 'finished') {
+                startTimer();
             }
         }
 
-        // Update clock immediately and then every second
-        updateClock();
-        setInterval(updateClock, 1000);
+        function cancelTimer() {
+            state = 'idle';
+            cancelAnimationFrame(rafId);
+            remainingMs = 0; totalMs = 0; lastTs = 0;
+            updateUI();
+            window.electronAPI?.timerCanceled?.();
+        }
 
-        // Add some interactivity
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('BetterClock loaded successfully!');
-            
-            // Add click animation to clock
-            document.getElementById('clock').addEventListener('click', () => {
-                const clock = document.getElementById('clock');
-                clock.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    clock.style.transform = 'scale(1)';
-                }, 150);
-            });
+        // Controls
+        mainBtn.addEventListener('click', () => {
+            if (state === 'idle' || state === 'finished') startTimer(); else pauseOrResume();
         });
+        cancelBtn.addEventListener('click', () => cancelTimer());
+        document.querySelectorAll('.chip').forEach(el => el.addEventListener('click', () => {
+            minutesInput.value = el.getAttribute('data-min');
+            document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
+            el.setAttribute('aria-pressed','true');
+        }));
+
+        // Tray menu actions from main process
+        window.electronAPI?.onTrayAction?.((_, action) => {
+            if (action === 'toggle') { pauseOrResume(); }
+            else if (action === 'cancel') { cancelTimer(); }
+            else if (action === 'start') { if (state === 'idle') startTimer(); }
+        });
+
+        // Initial UI
+        remainingMs = 0; totalMs = 0; updateUI();
     </script>
 </body>
 </html>

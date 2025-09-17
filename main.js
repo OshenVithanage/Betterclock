@@ -1,8 +1,10 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, Tray, nativeImage } = require('electron');
 const path = require('path');
 
 // Keep a global reference of the window object
 let mainWindow;
+let tray;
+let activeTimer = { state: 'idle', remaining: 0, total: 0 };
 
 function createWindow() {
   // Create the browser window
@@ -78,6 +80,20 @@ function setupIpcHandlers() {
     console.log('Received message from renderer:', message);
     return `Echo: ${message}`;
   });
+
+  // Timer updates from renderer
+  ipcMain.handle('timer-tick', (_e, payload) => {
+    activeTimer = { ...activeTimer, ...payload };
+    updateTray();
+  });
+  ipcMain.handle('timer-done', () => {
+    activeTimer.state = 'finished';
+    updateTray();
+  });
+  ipcMain.handle('timer-canceled', () => {
+    activeTimer = { state: 'idle', remaining: 0, total: 0 };
+    updateTray();
+  });
 }
 
 // Security: Prevent navigation to external websites
@@ -90,3 +106,52 @@ app.on('web-contents-created', (event, contents) => {
     }
   });
 });
+
+// Tray setup and helpers
+app.whenReady().then(() => {
+  setupTray();
+});
+
+function setupTray() {
+  if (tray) return;
+  const iconPath = path.join(__dirname, 'assets', process.platform === 'darwin' ? 'trayTemplate.png' : 'tray.png');
+  let icon = null;
+  try {
+    icon = nativeImage.createFromPath(iconPath);
+  } catch (e) { /* ignore if missing; we'll use empty */ }
+  tray = new Tray(icon || nativeImage.createEmpty());
+  tray.setToolTip('BetterClock');
+  tray.on('click', () => {
+    // toggle pause/resume
+    if (mainWindow) {
+      mainWindow.webContents.send('tray-action', 'toggle');
+      mainWindow.show();
+    }
+  });
+  updateTray();
+}
+
+function formatMmSs(ms) {
+  const secs = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function updateTray() {
+  if (!tray) return;
+  const isActive = activeTimer.state === 'running' || activeTimer.state === 'paused';
+  const label = isActive ? ` ${formatMmSs(activeTimer.remaining)}` : '';
+  tray.setTitle(label); // macOS supports title text in menu bar
+
+  const context = Menu.buildFromTemplate([
+    { label: 'Show Window', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
+    { type: 'separator' },
+    { label: (activeTimer.state === 'running' ? 'Pause' : 'Resume'), enabled: isActive, click: () => { if (mainWindow) mainWindow.webContents.send('tray-action', 'toggle'); } },
+    { label: 'Start', enabled: activeTimer.state === 'idle' || activeTimer.state === 'finished', click: () => { if (mainWindow) mainWindow.webContents.send('tray-action', 'start'); } },
+    { label: 'Cancel', enabled: isActive, click: () => { if (mainWindow) mainWindow.webContents.send('tray-action', 'cancel'); } },
+    { type: 'separator' },
+    { label: 'Quit', click: () => app.quit() }
+  ]);
+  tray.setContextMenu(context);
+}

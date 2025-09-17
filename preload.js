@@ -4,17 +4,16 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Example: Send message to main process
   sendMessage: (message) => ipcRenderer.invoke('send-message', message),
-  
-  // Example: Listen for messages from main process
   onMessage: (callback) => ipcRenderer.on('message-from-main', callback),
-  
-  // Example: Get app version
   getVersion: () => ipcRenderer.invoke('get-version'),
-  
-  // Example: Close the app
-  closeApp: () => ipcRenderer.invoke('close-app')
+  closeApp: () => ipcRenderer.invoke('close-app'),
+
+  // Timer/tray IPC
+  timerTick: (payload) => ipcRenderer.invoke('timer-tick', payload),
+  timerDone: () => ipcRenderer.invoke('timer-done'),
+  timerCanceled: () => ipcRenderer.invoke('timer-canceled'),
+  onTrayAction: (callback) => ipcRenderer.on('tray-action', callback)
 });
 
 // Log that preload script has loaded
