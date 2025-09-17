@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterClock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .clock {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .date {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .app-title {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .features {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .clock {
+                font-size: 2.5rem;
+            }
+            
+            .app-title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                margin: 20px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="app-title">BetterClock</h1>
+        <div class="clock" id="clock">00:00:00</div>
+        <div class="date" id="date">Loading...</div>
+        <p class="subtitle">A beautiful and modern clock application built with Electron</p>
+        
+        <div class="buttons">
+            <button class="btn" onclick="toggleFormat()">Toggle 12/24H</button>
+            <button class="btn" onclick="showInfo()">App Info</button>
+            <button class="btn" onclick="closeApp()">Close App</button>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-title">Real-time Clock</div>
+                <div class="feature-desc">Always up-to-date time display with smooth animations</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Modern Design</div>
+                <div class="feature-desc">Beautiful glassmorphism UI with responsive layout</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Cross-platform</div>
+                <div class="feature-desc">Runs on Windows, macOS, and Linux</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let is24Hour = true;
+
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = {
+                hour12: !is24Hour,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', timeOptions);
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', dateOptions);
+        }
+
+        function toggleFormat() {
+            is24Hour = !is24Hour;
+            updateClock();
+        }
+
+        function showInfo() {
+            if (window.electronAPI && window.electronAPI.getVersion) {
+                window.electronAPI.getVersion().then(version => {
+                    alert(`BetterClock v${version}\nBuilt with Electron\nCreated for better time management`);
+                }).catch(() => {
+                    alert('BetterClock v1.0.0\nBuilt with Electron\nCreated for better time management');
+                });
+            } else {
+                alert('BetterClock v1.0.0\nBuilt with Electron\nCreated for better time management');
+            }
+        }
+
+        function closeApp() {
+            if (window.electronAPI && window.electronAPI.closeApp) {
+                window.electronAPI.closeApp();
+            } else {
+                window.close();
+            }
+        }
+
+        // Update clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('BetterClock loaded successfully!');
+            
+            // Add click animation to clock
+            document.getElementById('clock').addEventListener('click', () => {
+                const clock = document.getElementById('clock');
+                clock.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    clock.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>

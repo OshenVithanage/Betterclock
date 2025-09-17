@@ -1,0 +1,27 @@
+{
+  "name": "betterclock",
+  "version": "1.0.0",
+  "description": "A beautiful and modern clock application built with Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OshenVithanage/Betterclock.git"
+  },
+  "keywords": ["clock", "time", "electron", "desktop", "utility"],
+  "author": "Your Name",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OshenVithanage/Betterclock/issues"
+  },
+  "homepage": "https://github.com/OshenVithanage/Betterclock#readme",
+  "devDependencies": {
+    "electron": "^38.1.1"
+  }
+}
