@@ -70,8 +70,8 @@ Betterclock/
 
 ## License
 
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
-Your Name - [Your GitHub Profile](https://github.com/OshenVithanage)
+Your Name - [Oshen Gimantha Vithanage](https://github.com/OshenVithanage)

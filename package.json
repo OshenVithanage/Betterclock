@@ -16,7 +16,7 @@
   },
   "keywords": ["clock", "time", "electron", "desktop", "utility"],
   "author": "Your Name",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/OshenVithanage/Betterclock/issues"
   },
