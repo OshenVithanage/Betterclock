@@ -74,4 +74,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 
-Your Name - [Oshen Gimantha Vithanage](https://github.com/OshenVithanage)
+Oshen Gimantha Vithanage - [OshenVithanage](https://github.com/OshenVithanage)
