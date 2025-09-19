@@ -1,0 +1,9 @@
+.timer-card {
+    background: transparent;
+    border-radius: 20px;
+    padding: 28px;
+    display: grid;
+    place-items: center;
+    box-shadow: none;
+    min-height: 200px;
+}

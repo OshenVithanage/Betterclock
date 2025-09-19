@@ -21,8 +21,8 @@ function createWindow() {
     show: false // Don't show until ready
   });
 
-  // Load the index.html file
-  mainWindow.loadFile('index.html');
+  // Load the React app (built version)
+  mainWindow.loadFile('dist/index.html');
 
   // Show window when ready to prevent visual flash
   mainWindow.once('ready-to-show', () => {

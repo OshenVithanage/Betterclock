@@ -1,16 +1,25 @@
 # BetterClock
 
-A beautiful and modern clock application built with Electron.
+A beautiful and modern timer application built with React and Electron, featuring smooth animations and an intuitive interface.
 
-## Features
+## ✨ Features
 
-- **Real-time Clock**: Always up-to-date time display with smooth animations
-- **Modern Design**: Beautiful glassmorphism UI with responsive layout
-- **Cross-platform**: Runs on Windows, macOS, and Linux
-- **12/24 Hour Format**: Toggle between different time formats
-- **Responsive**: Adapts to different screen sizes
+- **Modern React Interface**: Built with React for smooth state management and component reusability
+- **Dual Timer Modes**: 
+  - **Focus Sessions**: Pomodoro-style productivity timers (15/25/45/60 minutes)
+  - **Break Timers**: Quick break sessions (5/10/15/20 minutes)
+- **Animated Tab Navigation**: Pill-style segmented controls with sliding indicators
+- **Circular Progress Indicators**: Visual countdown with smooth animations
+- **System Tray Integration**: Control timers from the system tray
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
-## Installation
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm
+
+### Installation
 
 1. Clone the repository:
    ```bash
@@ -23,42 +32,62 @@ A beautiful and modern clock application built with Electron.
    npm install
    ```
 
-## Usage
+3. Build the React application:
+   ```bash
+   npm run build:react
+   ```
+
+4. Start the application:
+   ```bash
+   npm start
+   ```
+
+## 🛠️ Development
 
 ### Development Mode
+For development with automatic React rebuilding:
 ```bash
 npm run dev
 ```
 
-### Production Mode
-```bash
-npm start
+### Build Commands
+- `npm run build:react` - Build React app for production
+- `npm run build:react:dev` - Build React app for development
+- `npm run watch:react` - Watch mode for React development
+- `npm start` - Start Electron with built React app
+- `npm run build` - Build complete Electron application
+- `npm run dist` - Create distributable packages
+
+## 🏗️ Architecture
+
+### Tech Stack
+- **Frontend**: React 18 with Hooks
+- **Desktop Framework**: Electron
+- **Build Tool**: Webpack with Babel
+- **Styling**: CSS3 with CSS Variables
+
+### Project Structure
 ```
+src/
+├── components/          # React components
+│   ├── App.js          # Main application component
+│   ├── TabNavigation.js # Tab switching component
+│   ├── TabIndicator.js  # Animated tab indicator
+│   ├── TimerCard.js     # Timer container component
+│   ├── BreaksTab.js     # Break timer functionality
+│   └── TasksTab.js      # Focus timer functionality
+├── hooks/               # Custom React hooks
+│   └── useElectronAPI.js # Electron API integration
+├── styles/              # Global styles
+│   └── index.css       # Base application styles
+├── index.js            # React entry point
+└── index.html          # HTML template
 
-## Project Structure
-
+dist/                   # Built React application
+main.js                 # Electron main process
+preload.js             # Electron preload script
+webpack.config.js      # Webpack configuration
 ```
-Betterclock/
-├── main.js          # Main Electron process
-├── preload.js       # Preload script for secure communication
-├── index.html       # Main application UI
-├── package.json     # Project configuration
-└── README.md        # This file
-```
-
-## Technologies Used
-
-- **Electron**: Cross-platform desktop app framework
-- **HTML5/CSS3**: Modern web technologies
-- **JavaScript**: Application logic
-- **Node.js**: Backend runtime
-
-## Security Features
-
-- Context isolation enabled
-- Node integration disabled
-- Remote module disabled
-- Secure preload script for renderer-main communication
 
 ## Contributing
 

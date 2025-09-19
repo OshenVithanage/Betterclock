@@ -1,0 +1,4 @@
+.app {
+    width: min(920px, 92vw);
+    padding: 0 32px 32px 32px;
+}

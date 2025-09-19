@@ -10,8 +10,8 @@
             --panel: #141416;
             --muted: #8b8d92;
             --text: #e9eaed;
-            --primary: #1a73e8;
-            --primary-weak: #1a73e81a;
+            --primary: #F4BC0F;
+            --primary-weak: #F4BC0F1a;
             --ring-bg: #2a2c30;
         }
         html, body {
@@ -24,225 +24,243 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            display: grid;
-            place-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
         .app {
             width: min(920px, 92vw);
-            padding: 32px;
+            padding: 0 32px 32px 32px;
         }
         .tabs {
             display: flex;
-            gap: 16px;
+            background: var(--panel);
+            border-radius: 50px;
+            padding: 4px;
+            gap: 0;
             justify-content: center;
             margin-bottom: 24px;
+            margin-top: 2;
+            position: relative;
+            max-width: 120px; /* Start compact - only icons */
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden; /* Keep indicator contained */
+        }
+        .tabs:hover {
+            max-width: 280px; /* Expand to show text */
+        }
+        .tabs.expanded {
+            max-width: 280px; /* Keep expanded after hover */
         }
         .tab {
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: #1b1c20;
+            padding: 12px 16px;
+            border-radius: 46px;
+            background: transparent;
             color: var(--muted);
             font-weight: 600;
             user-select: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            text-align: center;
+            border: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            min-width: 48px; /* Minimum size for icon */
         }
-        .tab.active { background: #2a2b30; color: var(--text); }
+        .tab.active { 
+            color: var(--text);
+        }
+        .tab svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        .tab-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0;
+            overflow: hidden;
+        }
+        .tabs:hover .tab-text,
+        .tabs.expanded .tab-text {
+            opacity: 1;
+            transform: translateX(0);
+            width: auto;
+        }
+        .tab-indicator {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            background: var(--primary);
+            border-radius: 46px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 2px 8px rgba(244, 188, 15, 0.3);
+            will-change: width, transform;
+        }
         .timer-card {
-            background: var(--panel);
+            background: transparent;
             border-radius: 20px;
             padding: 28px;
             display: grid;
             place-items: center;
-            box-shadow: 0 10px 40px #0006;
+            box-shadow: none;
+            min-height: 200px;
         }
-        .ring {
-            width: 420px; height: 420px; position: relative;
-        }
-        canvas { width: 100%; height: 100%; display: block; }
-        .time {
-            position: absolute; inset: 0; display: grid; place-items: center;
-            font-size: 92px; font-weight: 600; letter-spacing: 1px;
-        }
-        .preset-row {
-            margin-top: 18px; display: flex; gap: 8px; justify-content: center;
-        }
-        .chip { background: #222329; color: var(--text); border: 1px solid #2f3137; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
-        .chip[aria-pressed="true"] { outline: 2px solid var(--primary); background: #1b2130; }
-        .controls { margin-top: 28px; display: flex; gap: 12px; justify-content: center; }
-        .btn { border: 0; padding: 12px 22px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-        .btn.primary { background: var(--primary); color: white; }
-        .btn.ghost { background: #23252a; color: var(--text); }
-        .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; text-align: center; }
-        .row { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 10px; color: var(--muted) }
-        select, input[type="number"] { background: #1b1d22; color: var(--text); border: 1px solid #2b2e35; padding: 8px 10px; border-radius: 10px; }
-        input[type="number"] { width: 90px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="app">
-        <div class="tabs">
-            <div class="tab">World Clock</div>
-            <div class="tab">Alarms</div>
-            <div class="tab">Stopwatch</div>
-            <div class="tab active">Timers</div>
+        <div class="tabs" id="tabsContainer">
+            <div class="tab-indicator" id="tabIndicator"></div>
+            <button class="tab" data-tab="breaks">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5C14.8 6.6 14.3 5.8 13.5 5.3L16.8 2L15.4 0.6L12 4L8.6 0.6L7.2 2L10.5 5.3C9.7 5.8 9.2 6.6 9 7.5L3 7V9L9 8.5V10.5C9 11.3 9.7 12 10.5 12H13.5C14.3 12 15 11.3 15 10.5V8.5L21 9ZM6 13C4.9 13 4 13.9 4 15S4.9 17 6 17 8 16.1 8 15 7.1 13 6 13ZM6 19C4.9 19 4 19.9 4 21S4.9 23 6 23 8 22.1 8 21 7.1 19 6 19ZM18 13C16.9 13 16 13.9 16 15S16.9 17 18 17 20 16.1 20 15 19.1 13 18 13ZM18 19C16.9 19 16 19.9 16 21S16.9 23 18 23 20 22.1 20 21 19.1 19 18 19Z"/>
+                </svg>
+                <span class="tab-text">Breaks</span>
+            </button>
+            <button class="tab active" data-tab="tasks">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M7,7H17V9H7V7M7,11H17V13H7V11M7,15H13V17H7V15Z"/>
+                </svg>
+                <span class="tab-text">Tasks</span>
+            </button>
         </div>
         <div class="timer-card">
-            <div class="ring">
-                <canvas id="ringCanvas" width="420" height="420"></canvas>
-                <div class="time" id="timeText">00:00</div>
-            </div>
-            <div class="row">
-                <span>Timer</span>
-                <select id="styleSelect">
-                    <option value="radial">Radial (Default)</option>
-                </select>
-                <input id="minutesInput" type="number" min="0" max="999" value="15" />
-                <span class="footer-note">minutes</span>
-            </div>
-            <div class="preset-row">
-                <button class="chip" data-min="5">5</button>
-                <button class="chip" data-min="10">10</button>
-                <button class="chip" data-min="15">15</button>
-                <button class="chip" data-min="25">25</button>
-                <button class="chip" data-min="45">45</button>
-            </div>
-            <div class="controls">
-                <button id="cancelBtn" class="btn ghost">Cancel</button>
-                <button id="mainBtn" class="btn primary">Start</button>
-            </div>
-            <div class="footer-note" id="statusNote">Ready</div>
+            <!-- Clean interface - content will be added here -->
         </div>
     </div>
     <script>
-        const canvas = document.getElementById('ringCanvas');
-        const ctx = canvas.getContext('2d');
-        const timeText = document.getElementById('timeText');
-        const mainBtn = document.getElementById('mainBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const minutesInput = document.getElementById('minutesInput');
-        const statusNote = document.getElementById('statusNote');
-
-        const R = 200; // radius
-        const LINE = 10;
-        let totalMs = 0;
-        let remainingMs = 0;
-        let state = 'idle'; // idle | running | paused | finished
-        let rafId = null;
-        let lastTs = 0;
-
-        function drawRing(progress) {
-            const cx = canvas.width / 2; const cy = canvas.height / 2;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // track
-            ctx.beginPath();
-            ctx.arc(cx, cy, R, 0, Math.PI * 2);
-            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--ring-bg');
-            ctx.lineWidth = LINE;
-            ctx.stroke();
-            // progress
-            ctx.beginPath();
-            const start = -Math.PI/2; // top
-            ctx.arc(cx, cy, R, start, start + Math.PI * 2 * progress);
-            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary');
-            ctx.lineCap = 'round';
-            ctx.lineWidth = LINE + 2;
-            ctx.stroke();
-        }
-
-        function mmss(ms) {
-            const s = Math.max(0, Math.floor(ms/1000));
-            const m = Math.floor(s/60);
-            const r = s % 60;
-            return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
-        }
-
-        function updateUI() {
-            timeText.textContent = mmss(remainingMs);
-            const p = totalMs === 0 ? 0 : (totalMs - remainingMs) / totalMs;
-            drawRing(p);
-            if (state === 'idle' || state === 'finished') { mainBtn.textContent = 'Start'; }
-            else if (state === 'running') { mainBtn.textContent = 'Pause'; }
-            else if (state === 'paused') { mainBtn.textContent = 'Resume'; }
-            statusNote.textContent = state === 'running' ? 'Timer running' : state === 'paused' ? 'Paused' : 'Ready';
-            if (window.electronAPI?.timerTick) {
-                window.electronAPI.timerTick({
-                    state,
-                    remaining: Math.max(0, remainingMs),
-                    total: totalMs
-                });
+        // Tab switching with sliding indicator and hover animation
+        const tabs = document.querySelectorAll('.tab');
+        const tabIndicator = document.getElementById('tabIndicator');
+        const tabsContainer = document.getElementById('tabsContainer');
+        let hideTimeout = null;
+        
+        function updateTabIndicator() {
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab && tabIndicator) {
+                // Get current dimensions
+                const tabsRect = tabsContainer.getBoundingClientRect();
+                const activeTabRect = activeTab.getBoundingClientRect();
+                
+                // Calculate relative position within container
+                const containerWidth = tabsRect.width;
+                const tabWidth = activeTabRect.width;
+                const tabLeft = activeTabRect.left - tabsRect.left;
+                
+                // Ensure indicator stays within bounds
+                const maxLeft = containerWidth - tabWidth - 8; // Account for padding
+                const constrainedLeft = Math.max(4, Math.min(tabLeft, maxLeft));
+                const constrainedWidth = Math.min(tabWidth, containerWidth - 8);
+                
+                tabIndicator.style.width = `${constrainedWidth}px`;
+                tabIndicator.style.transform = `translateX(${constrainedLeft}px)`;
             }
         }
-
-        function loop(ts) {
-            if (state !== 'running') return;
-            if (!lastTs) lastTs = ts;
-            const dt = ts - lastTs;
-            lastTs = ts;
-            remainingMs -= dt;
-            if (remainingMs <= 0) {
-                remainingMs = 0;
-                state = 'finished';
-                updateUI();
-                window.electronAPI?.timerDone?.();
-                return;
+        
+        // Animation frame loop for smooth indicator updates
+        let isAnimating = false;
+        function startIndicatorAnimation() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            function animateIndicator() {
+                updateTabIndicator();
+                if (isAnimating) {
+                    requestAnimationFrame(animateIndicator);
+                }
             }
-            updateUI();
-            rafId = requestAnimationFrame(loop);
+            requestAnimationFrame(animateIndicator);
         }
-
-        function startTimer() {
-            const mins = Math.max(0, Number(minutesInput.value || 0));
-            totalMs = mins * 60 * 1000;
-            remainingMs = totalMs;
-            state = 'running';
-            lastTs = 0;
-            cancelAnimationFrame(rafId);
-            updateUI();
-            rafId = requestAnimationFrame(loop);
+        
+        function stopIndicatorAnimation() {
+            isAnimating = false;
         }
-
-        function pauseOrResume() {
-            if (state === 'running') {
-                state = 'paused';
-                cancelAnimationFrame(rafId);
-                updateUI();
-            } else if (state === 'paused') {
-                state = 'running';
-                lastTs = 0;
-                updateUI();
-                rafId = requestAnimationFrame(loop);
-            } else if (state === 'idle' || state === 'finished') {
-                startTimer();
+        
+        // Handle hover animations with delay
+        tabsContainer.addEventListener('mouseenter', () => {
+            // Clear any pending hide timeout
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
             }
-        }
-
-        function cancelTimer() {
-            state = 'idle';
-            cancelAnimationFrame(rafId);
-            remainingMs = 0; totalMs = 0; lastTs = 0;
-            updateUI();
-            window.electronAPI?.timerCanceled?.();
-        }
-
-        // Controls
-        mainBtn.addEventListener('click', () => {
-            if (state === 'idle' || state === 'finished') startTimer(); else pauseOrResume();
+            // Start smooth animation loop
+            startIndicatorAnimation();
+            // Stop after transition completes
+            setTimeout(() => stopIndicatorAnimation(), 500);
         });
-        cancelBtn.addEventListener('click', () => cancelTimer());
-        document.querySelectorAll('.chip').forEach(el => el.addEventListener('click', () => {
-            minutesInput.value = el.getAttribute('data-min');
-            document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
-            el.setAttribute('aria-pressed','true');
-        }));
-
-        // Tray menu actions from main process
-        window.electronAPI?.onTrayAction?.((_, action) => {
-            if (action === 'toggle') { pauseOrResume(); }
-            else if (action === 'cancel') { cancelTimer(); }
-            else if (action === 'start') { if (state === 'idle') startTimer(); }
+        
+        tabsContainer.addEventListener('mouseleave', () => {
+            // Start 2-second countdown to hide text
+            hideTimeout = setTimeout(() => {
+                tabsContainer.classList.remove('expanded');
+                // Start animation for collapse
+                startIndicatorAnimation();
+                setTimeout(() => stopIndicatorAnimation(), 500);
+            }, 2000); // 2 seconds
+            
+            // Keep expanded for the countdown period
+            tabsContainer.classList.add('expanded');
         });
-
-        // Initial UI
-        remainingMs = 0; totalMs = 0; updateUI();
+        
+        // Listen for CSS transitions to update indicator
+        tabsContainer.addEventListener('transitionend', (e) => {
+            if (e.target === tabsContainer && e.propertyName === 'max-width') {
+                // Final adjustment after transition completes
+                updateTabIndicator();
+            }
+        });
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Start smooth animation for tab switch
+                startIndicatorAnimation();
+                setTimeout(() => stopIndicatorAnimation(), 500);
+                
+                // Keep expanded after clicking
+                tabsContainer.classList.add('expanded');
+                
+                // Reset the hide timeout
+                if (hideTimeout) {
+                    clearTimeout(hideTimeout);
+                }
+                hideTimeout = setTimeout(() => {
+                    tabsContainer.classList.remove('expanded');
+                    // Start animation for collapse
+                    startIndicatorAnimation();
+                    setTimeout(() => stopIndicatorAnimation(), 500);
+                }, 2000);
+                
+                // Here you can add logic to switch between different views
+                const tabType = tab.getAttribute('data-tab');
+                console.log('Switched to:', tabType);
+            });
+        });
+        
+        // Initialize indicator position
+        setTimeout(updateTabIndicator, 100);
+        window.addEventListener('resize', updateTabIndicator);
     </script>
 </body>
 </html>

@@ -5,16 +5,25 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "NODE_ENV=development electron .",
-    "build": "electron-builder",
-    "dist": "electron-builder --publish=never",
+    "dev": "./dev.sh",
+    "build:react": "webpack --mode=production",
+    "build:react:dev": "webpack --mode=development",
+    "watch:react": "webpack --mode=development --watch",
+    "build": "npm run build:react && electron-builder",
+    "dist": "npm run build:react && electron-builder --publish=never",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OshenVithanage/Betterclock.git"
   },
-  "keywords": ["clock", "time", "electron", "desktop", "utility"],
+  "keywords": [
+    "clock",
+    "time",
+    "electron",
+    "desktop",
+    "utility"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "bugs": {
@@ -22,6 +31,22 @@
   },
   "homepage": "https://github.com/OshenVithanage/Betterclock#readme",
   "devDependencies": {
-    "electron": "^38.1.1"
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "electron": "^38.1.1",
+    "html-webpack-plugin": "^5.6.4",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
